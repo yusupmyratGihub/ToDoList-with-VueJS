@@ -1,8 +1,13 @@
 <template>
   <div id="app">
     <ToDoForm @onNewTodo="handleNewTodo" />
+    
     <div style="margin-top: 20px">
-      <ToDoListItem v-for="todo in todoList" :key="todo.id" :todo="todo" />
+      
+      <ToDoListItem v-for="todo in todoList" :key="todo.id" :todo="todo"
+      
+      @onToggleIsChecked="handleToggleIsChecked" 
+       />
 
     </div>
   </div>
@@ -11,6 +16,7 @@
 
 
 <script>
+
 import ToDoForm from "./components/todo-from.vue"
 import ToDoListItem from "./components/todo-list-item.vue"
 
@@ -30,6 +36,13 @@ export default {
     handleNewTodo(newTodo) {
       this.todoList.push(newTodo)
       console.log(this.todoList)
+    },
+    handleToggleIsChecked({value, id}) {
+      const todo=this.findId(id)
+      todo.isChecked=value
+    },
+    findId(id) {
+      return this.todoList.find(todo => todo.id === id)
     }
   }
 }

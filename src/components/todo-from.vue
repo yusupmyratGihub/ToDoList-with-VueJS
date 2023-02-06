@@ -1,8 +1,12 @@
 <template>
     <form @submit.prevent="submit">
+
         <input required placeholder="title" v-model="title" />
+
         <input required placeholder="description" v-model="description">
-        <button type="submit">ADD</button>
+        <input required placeholder="expireDate" v-model="title" />
+
+        <button type="submit" >ADD</button>
 
     </form>
 
@@ -10,25 +14,31 @@
 
 
 <script>
+
+import { mapActions } from "vuex";
 export default {
     name: "ToDoForm",
-    data() {
+    
+   data() {
         return (
             {
-                title: "",
-                description: ""
+                title:"",
+                description: "",
+                expireDate:""
             }
         )
     },
-    methods: {
+   methods: {
         submit() {
-            this.emitNewTodo()
+            [...mapActions.addTodoFunc(this.emitNewTodo())]
+            
         },
-        emitNewTodo(){
-            this.$emit("onNewTodo",{
-                title:this.title,
-                description:this.description,
-                id:`todo_${Math.random()* 1000}`
+        emitNewTodo() {
+            this.$emit("onNewTodo", {
+                title: this.title,
+                description: this.description,
+                expireDate:this.expireDate,
+                id: `todo_${Math.random() * 1000}`
             })
         }
 

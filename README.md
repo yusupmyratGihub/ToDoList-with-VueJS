@@ -22,3 +22,6 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### Install VueX version  for VueJs2 version
+npm install --save vuex@3.6.2
