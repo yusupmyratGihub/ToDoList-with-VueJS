@@ -1,60 +1,125 @@
 <template>
-  <div id="app">
-    <ToDoForm @onNewTodo="handleNewTodo" />
-    
-    <div style="margin-top: 20px">
-      
-      <ToDoListItem v-for="todo in todoList" :key="todo.id" :todo="todo"
-      
-      @onToggleIsChecked="handleToggleIsChecked" 
-       />
+  <div>
+    <div>
+      <form
+        @submit="createTodo"
+        class="bg-white shadow-md rounded px-8 pt-10 pb-10 mb-10"
+      >
+        <div class="identity-input mb-4">
+          <label
+            for="identity"
+            class="block text-gray-700 text-sm font-bold mb-2"
+          >
+            Email</label
+          >
+          <input
+            class="
+              form-control
+              shadow
+              appearance-none
+              borderrounded
+              w-full
+              py-2
+              px-3
+              text-gray-700
+              mb-3
+              leading-tight
+              focus:outline-none focus:shadow-outline
+            "
+            type="text"
+            placeholder="Title"
+            v-model="title"
+            required
+          />
 
+          <span class="text-xs text-red-700" id="emailHelp"></span>
+        </div>
+
+        <div class="password-input mb-6">
+          <label class="block text-gray-700 text-sm font-bold mb-2"
+            >Description</label
+          >
+
+          <input
+            aria-describedby="passwordHelp"
+            v-model="description"
+            class="
+              shadow
+              appearance-none
+              borderrounded
+              w-full
+              py-2
+              px-3
+              text-gray-700
+              mb-3
+              leading-tight
+              focus:outline-none focus:shadow-outline
+            "
+            type="text"
+            placeholder="Description"
+            required
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <button
+            class="
+              bg-blue-600
+              hover:bg-black
+              text-white
+              font-bold
+              py-2
+              px-4
+              rounded
+              focus:outline-none focus:shadow-outline
+            "
+            type="submit"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+      <div>
+        
+      </div>
+
+      <div class="grid grid-rows-3 grid-flow-col gap-4">
+        <div class="row-start-2 row-span-2">
+          <h4>Pending Todo</h4>
+          <todo-list completed="false"></todo-list>
+        </div>
+        <div class="row-start-2 row-span-2">
+          <h4>Completed Todo</h4>
+          <todo-list completed="true"></todo-list>
+        </div>
+
+        
+      </div>
     </div>
   </div>
-
 </template>
 
 
 <script>
-
-import ToDoForm from "./components/todo-from.vue"
-import ToDoListItem from "./components/todo-list-item.vue"
-
+import TodoList from "./components/todo-list.vue";
 export default {
-  name: 'App',
-  components: {
-    ToDoListItem,
-    ToDoForm
-  },
+  name: "app",
+  components: { TodoList },
   data() {
     return {
-      todoList: []
-    }
+      title: "",
+      description: "",
+    };
   },
-
   methods: {
-    handleNewTodo(newTodo) {
-      this.todoList.push(newTodo)
-      console.log(this.todoList)
+    createTodo(e) {
+      e.preventDefault();
+      this.$store.dispatch("ADD_TODO", this);
+      this.title = this.description = "";
     },
-    handleToggleIsChecked({value, id}) {
-      const todo=this.findId(id)
-      todo.isChecked=value
-    },
-    findId(id) {
-      return this.todoList.find(todo => todo.id === id)
-    }
-  }
-}
+  },
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style scoped>
 </style>
