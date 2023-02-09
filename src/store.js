@@ -8,18 +8,20 @@ const store = new Vuex.Store({
 
     state:{
         todos:[
-            { title: 'this is a task', description: 'yes it is defeinitely a task for us to do!', status: false },
-            { title: 'this can be a task', description: 'yes it is defeinitely a task for us to do!', status: true },
-            { title: 'this is likey a task', description: 'probably a task for us to do!', status: false },
-            { title: 'Wow a task', description: 'wow defeinitely a task for us to do!', status: true }
+            { title: 'this is a task', description: 'yes it is defeinitely a task for us to do!',expireDate:{}, status: false },
+          
+            { title: 'Wow a task', description: 'wow defeinitely a task for us to do!',expireDate:{}, status: true },
+            { title: 'Wow a ', description: ' a task for us to do!',expireDate:{}, status: true }
         ]
     },
     actions:{
         ADD_TODO ({ commit }, todo){
+            console.log(todo);
             let new_todo = {
 
                 title: todo.title,
                 description: todo.description,
+                expireDate:todo.expireDate,
                 status: false
             };
             commit("ADD_TODO_MUTATION", new_todo);
