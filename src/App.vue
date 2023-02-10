@@ -25,11 +25,11 @@
             leading-tight
             focus:outline-none focus:shadow-outline
           "
-          type="text"
-          placeholder="Title"
           v-model="title"
-          required
+          type="text"
+          @input="v$.title.$touch()"
         />
+        <p v-if="v$.title.$error">Surname is required</p>
 
         <span class="text-xs text-red-700" id="emailHelp"></span>
       </div>
@@ -56,8 +56,9 @@
           "
           type="text"
           placeholder="Description"
-          required
+          @input="v$.description.$touch()"
         />
+        <p v-if="v$.description.$error">Surname is required</p>
       </div>
 
       <div class="mb-4">
@@ -107,9 +108,23 @@
 <script>
 import TodoList from "./components/todo-list.vue";
 import { FunctionalCalendar } from "vue-functional-calendar";
+import { required, helpers } from "@vuelidate/validators";
+import { useVuelidate } from "@vuelidate/core";
+
 export default {
   name: "app",
   components: { TodoList, FunctionalCalendar },
+  setup: () => ({ v$: useVuelidate() }),
+  validations() {
+    return {
+      title: {
+        required: helpers.withMessage("This field cannot be empty", required),
+      },
+      description: { required },
+      expireDate: { required },
+    };
+  },
+
   data() {
     return {
       title: "",
@@ -118,22 +133,36 @@ export default {
     };
   },
   methods: {
-    //dates: function() { this.isReset = true; this.$nextTick(() => { this.isReset = false; }) },
+    /* setTitle ($event) {
+      // do some silly transformation
+      this.title = $event.target.value.toUpperCase()
+      this.v$.title.$touch()
+    },
+     */
     async createTodo(e) {
-     // const tempExpiry = {...this.expireDate};
       e.preventDefault();
-      await this.$store.dispatch("ADD_TODO", {
-        title: this.title,
-        description: this.description,
-        expireDate: {...this.expireDate},
-      });
-      this.title = this.description = "";
-      this.expireDate.selectedDate = false;
-      this.expireDate.dateRange = {
-        start: "",
-
-        end: "",
+      const result = async () => {
+        await this.v$.v$alidate();
       };
+      console.log(result);
+      this.v$.$touch();
+
+      if (!this.v$.$invalid) {
+        await this.$store.dispatch("ADD_TODO", {
+          title: this.title,
+          description: this.description,
+          expireDate: { ...this.expireDate },
+        });
+
+        this.title = this.description = "";
+        this.expireDate.selectedDate = false;
+
+        this.expireDate.dateRange = {
+          start: "",
+
+          end: "",
+        };
+      }
     },
   },
 };
