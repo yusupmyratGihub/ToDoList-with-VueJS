@@ -1,5 +1,5 @@
 <template>
-    <div class="row-start-2 row-span-2">
+    <div class="pb-4">
         <div v-if="todos">
             <todo-item v-for="(todo,index) in todos" :todo="todo" :key="index"></todo-item>
         </div>

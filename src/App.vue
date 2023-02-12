@@ -63,12 +63,15 @@
 
       <div class="mb-4">
         <functional-calendar
+        
+        @input='v$.expiredate'
           v-model="expireDate"
           :is-modal="true"
           :is-date-range="true"
           :is-multiple="true"
           :calendars-count="2"
         ></functional-calendar>
+        <p v-if="v$.description.$error">Surname is required</p>
       </div>
 
       <div class="flex items-center justify-between">
@@ -91,13 +94,13 @@
     </form>
     <div></div>
 
-    <div class="grid grid-rows-3 grid-flow-col gap-4">
-      <div class="row-start-2 row-span-2">
-        <h4>Pending Todo</h4>
+    <div class="grid grid-flow-row gap-x-8 gap-y-4 sm:grid-cols-1 md:grid-cols-2">
+      <div class="m-4">
+        <h4 class="pb-4">Pending Todo</h4>
         <todo-list completed="false"></todo-list>
       </div>
-      <div class="row-start-2 row-span-2">
-        <h4>Completed Todo</h4>
+      <div class="m-4 pb-4">
+        <h4 class="pb-4">Completed Todo</h4>
         <todo-list completed="true"></todo-list>
       </div>
     </div>
@@ -108,7 +111,7 @@
 <script>
 import TodoList from "./components/todo-list.vue";
 import { FunctionalCalendar } from "vue-functional-calendar";
-import { required, helpers } from "@vuelidate/validators";
+import { required,helpers } from "@vuelidate/validators";
 import { useVuelidate } from "@vuelidate/core";
 
 export default {
@@ -133,12 +136,7 @@ export default {
     };
   },
   methods: {
-    /* setTitle ($event) {
-      // do some silly transformation
-      this.title = $event.target.value.toUpperCase()
-      this.v$.title.$touch()
-    },
-     */
+    
     async createTodo(e) {
       e.preventDefault();
       const result = async () => {
@@ -148,6 +146,7 @@ export default {
       this.v$.$touch();
 
       if (!this.v$.$invalid) {
+
         await this.$store.dispatch("ADD_TODO", {
           title: this.title,
           description: this.description,
@@ -169,4 +168,4 @@ export default {
 </script>
 
 <style scoped>
-</style>
+</style> 
