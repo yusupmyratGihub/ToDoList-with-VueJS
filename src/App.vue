@@ -9,7 +9,7 @@
           for="identity"
           class="block text-gray-700 text-sm font-bold mb-2"
         >
-          Email</label
+          Title</label
         >
         <input
           class="
@@ -25,11 +25,12 @@
             leading-tight
             focus:outline-none focus:shadow-outline
           "
+          placeholder="Title"
           v-model="title"
           type="text"
-          @input="v$.title.$touch()"
+          v-on="v$.title.$touch()"
         />
-        <p v-if="v$.title.$error">Surname is required</p>
+        <p class="text-red-600" v-if="v$.title?.$error">Title is required</p>
 
         <span class="text-xs text-red-700" id="emailHelp"></span>
       </div>
@@ -56,22 +57,25 @@
           "
           type="text"
           placeholder="Description"
-          @input="v$.description.$touch()"
+          v-on="v$.description"
         />
-        <p v-if="v$.description.$error">Surname is required</p>
+        <p class="text-red-600" v-if="v$.description?.$error">
+          Description is required
+        </p>
       </div>
 
       <div class="mb-4">
         <functional-calendar
-        
-        @input='v$.expiredate'
+          @input="v$.expiredate"
           v-model="expireDate"
           :is-modal="true"
           :is-date-range="true"
           :is-multiple="true"
           :calendars-count="2"
         ></functional-calendar>
-        <p v-if="v$.description.$error">Surname is required</p>
+        <p class="text-red-600" v-if="v$.expiredate?.$error">
+          Dates is required
+        </p>
       </div>
 
       <div class="flex items-center justify-between">
@@ -94,13 +98,39 @@
     </form>
     <div></div>
 
-    <div class="grid grid-flow-row gap-x-8 gap-y-4 sm:grid-cols-1 md:grid-cols-2">
+    <div
+      class="grid grid-flow-row gap-x-8 gap-y-4 sm:grid-cols-1 md:grid-cols-2"
+    >
       <div class="m-4">
-        <h4 class="pb-4">Pending Todo</h4>
+        <h4
+          class="
+            pb-4
+            mb-2
+            text-2xl
+            font-bold
+            tracking-tight
+            text-blue-900
+            dark:text-white
+          "
+        >
+          Pending Todo
+        </h4>
         <todo-list completed="false"></todo-list>
       </div>
       <div class="m-4 pb-4">
-        <h4 class="pb-4">Completed Todo</h4>
+        <h4
+          class="
+            pb-4
+            mb-2
+            text-2xl
+            font-bold
+            tracking-tight
+            text-blue-900
+            dark:text-white
+          "
+        >
+          Completed Todo
+        </h4>
         <todo-list completed="true"></todo-list>
       </div>
     </div>
@@ -111,12 +141,31 @@
 <script>
 import TodoList from "./components/todo-list.vue";
 import { FunctionalCalendar } from "vue-functional-calendar";
-import { required,helpers } from "@vuelidate/validators";
+import { required, helpers } from "@vuelidate/validators";
 import { useVuelidate } from "@vuelidate/core";
 
 export default {
   name: "app",
   components: { TodoList, FunctionalCalendar },
+  computed: {
+    selected() {
+      const sel = this.$store.getters.getSelected;
+      /* this.description=sel.description,
+      this.expireDate=sel.expireDate */
+      return sel;
+    },
+  },
+  watch: {
+    selected(newSelected) {
+      console.log("this is validator's error:", newSelected);
+      if (newSelected && newSelected?.id !== 0) {
+        this.title = newSelected.title;
+        this.description = newSelected.description;
+        this.expireDate = { ...newSelected.expireDate };
+        (this.id = newSelected.id), (this.status = newSelected?.status);
+      }
+    },
+  },
   setup: () => ({ v$: useVuelidate() }),
   validations() {
     return {
@@ -124,7 +173,18 @@ export default {
         required: helpers.withMessage("This field cannot be empty", required),
       },
       description: { required },
-      expireDate: { required },
+      expireDate: {
+        dateRange: { 
+          $each: helpers.forEach({
+          start: {
+            required,
+          },
+          end: {
+            required,
+          },
+        }),
+         },
+      },
     };
   },
 
@@ -133,27 +193,40 @@ export default {
       title: "",
       description: "",
       expireDate: {},
+      id: 0,
+      status: false,
     };
   },
   methods: {
-    
     async createTodo(e) {
-      e.preventDefault();
+     e.preventDefault();
       const result = async () => {
-        await this.v$.v$alidate();
+        await this.v$.validate();
       };
       console.log(result);
       this.v$.$touch();
 
       if (!this.v$.$invalid) {
+        //console.log('selected when clicked is: ', this.selected)
 
-        await this.$store.dispatch("ADD_TODO", {
-          title: this.title,
-          description: this.description,
-          expireDate: { ...this.expireDate },
-        });
-
-        this.title = this.description = "";
+        if (this.selected?.description) {
+          await this.$store.dispatch("UPDATE_TODO", {
+            id: this.id,
+            title: this.title,
+            description: this.description,
+            expireDate: { ...this.expireDate },
+          });
+        } else {
+          await this.$store.dispatch("ADD_TODO", {
+            id: Math.floor(Math.random() * 1000),
+            title: this.title,
+            description: this.description,
+            expireDate: { ...this.expireDate },
+          });
+        }
+        (this.id = 0),
+          (this.status = false),
+          (this.title = this.description = "");
         this.expireDate.selectedDate = false;
 
         this.expireDate.dateRange = {
