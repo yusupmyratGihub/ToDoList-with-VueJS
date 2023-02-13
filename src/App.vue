@@ -3,7 +3,15 @@
     <form
       @submit="createTodo"
       class="bg-white shadow-md rounded px-8 pt-10 pb-10 mb-10"
+      novalidate="ture"
     >
+    <p v-if="errors.length">
+    <b>Please correct the following error(s):</b>
+    <ul>
+      <li class="text-red-600 mb-8" v-for="error in errors" v-bind:key="error"> {{ error }}</li>
+    </ul>
+  </p>
+    
       <div class="identity-input mb-4">
         <label
           for="identity"
@@ -28,9 +36,8 @@
           placeholder="Title"
           v-model="title"
           type="text"
-          v-on="v$.title.$touch()"
         />
-        <p class="text-red-600" v-if="v$.title?.$error">Title is required</p>
+       
 
         <span class="text-xs text-red-700" id="emailHelp"></span>
       </div>
@@ -57,25 +64,22 @@
           "
           type="text"
           placeholder="Description"
-          v-on="v$.description"
+         
         />
-        <p class="text-red-600" v-if="v$.description?.$error">
-          Description is required
-        </p>
+      
       </div>
 
       <div class="mb-4">
         <functional-calendar
-          @input="v$.expiredate"
+         
           v-model="expireDate"
           :is-modal="true"
           :is-date-range="true"
           :is-multiple="true"
           :calendars-count="2"
         ></functional-calendar>
-        <p class="text-red-600" v-if="v$.expiredate?.$error">
-          Dates is required
-        </p>
+        
+        
       </div>
 
       <div class="flex items-center justify-between">
@@ -141,8 +145,6 @@
 <script>
 import TodoList from "./components/todo-list.vue";
 import { FunctionalCalendar } from "vue-functional-calendar";
-import { required, helpers } from "@vuelidate/validators";
-import { useVuelidate } from "@vuelidate/core";
 
 export default {
   name: "app",
@@ -150,8 +152,7 @@ export default {
   computed: {
     selected() {
       const sel = this.$store.getters.getSelected;
-      /* this.description=sel.description,
-      this.expireDate=sel.expireDate */
+     
       return sel;
     },
   },
@@ -166,48 +167,23 @@ export default {
       }
     },
   },
-  setup: () => ({ v$: useVuelidate() }),
-  validations() {
-    return {
-      title: {
-        required: helpers.withMessage("This field cannot be empty", required),
-      },
-      description: { required },
-      expireDate: {
-        dateRange: { 
-          $each: helpers.forEach({
-          start: {
-            required,
-          },
-          end: {
-            required,
-          },
-        }),
-         },
-      },
-    };
-  },
+ 
+  
 
   data() {
     return {
+      errors: [],
       title: "",
       description: "",
-      expireDate: {},
+      expireDate:{},
       id: 0,
       status: false,
     };
   },
   methods: {
     async createTodo(e) {
-     e.preventDefault();
-      const result = async () => {
-        await this.v$.validate();
-      };
-      console.log(result);
-      this.v$.$touch();
-
-      if (!this.v$.$invalid) {
-        //console.log('selected when clicked is: ', this.selected)
+     
+     if (this.title && this.description && this.expireDate.choseDay()) {
 
         if (this.selected?.description) {
           await this.$store.dispatch("UPDATE_TODO", {
@@ -235,6 +211,22 @@ export default {
           end: "",
         };
       }
+      else{
+        this.errors = [];
+        if (!this.title) {
+        this.errors.push('title required.');
+      }
+      if (!this.description) {
+        this.errors.push('Description  required.');
+      }
+      if (!this.expireDate.choseDay()) {
+        this.errors.push('Calendar  required.');
+      }
+      }
+      if (!this.errors.length) {
+        return true;
+      }
+      e.preventDefault();
     },
   },
 };
