@@ -132,11 +132,13 @@ export default {
       this.$store.dispatch("DELETE_TODO", this.todo);
     },
     duplicate() {
-      this.$store.dispatch("DUPLICATE_TODO", {...this.todo,id: Math.floor(Math.random() * 1000)});
+      this.$store.dispatch("DUPLICATE_TODO", {
+        ...this.todo,
+        id: Math.floor(Math.random() * 1000),
+      });
     },
     selectItemTodo() {
-
-      this.$store.dispatch("SELECTED_UPDATE_TODO",this.todo);
+      this.$store.dispatch("SELECTED_UPDATE_TODO", this.todo);
     },
   },
   setup() {
@@ -144,7 +146,6 @@ export default {
       const tempClass = "mb-4 border-4 rounded rounded-lg";
       const date = new Date();
       const expiringDate = new Date(exDate);
-      console.log(expiringDate);
 
       if (!status && expiringDate > date) {
         return `${tempClass} border-red-300`;

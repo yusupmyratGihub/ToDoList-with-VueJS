@@ -152,7 +152,6 @@ export default {
   computed: {
     selected() {
       const sel = this.$store.getters.getSelected;
-     
       return sel;
     },
   },
@@ -167,24 +166,20 @@ export default {
       }
     },
   },
- 
-  
 
   data() {
     return {
       errors: [],
       title: "",
       description: "",
-      expireDate:{},
+      expireDate: {},
       id: 0,
       status: false,
     };
   },
   methods: {
     async createTodo(e) {
-     
-     if (this.title && this.description && this.expireDate.choseDay()) {
-
+      if (this.title && this.description && this.expireDate) {
         if (this.selected?.description) {
           await this.$store.dispatch("UPDATE_TODO", {
             id: this.id,
@@ -211,18 +206,18 @@ export default {
           end: "",
         };
       }
-      else{
-        this.errors = [];
-        if (!this.title) {
-        this.errors.push('title required.');
+
+      this.errors = [];
+      if (!this.title) {
+        this.errors.push("title required.");
       }
       if (!this.description) {
-        this.errors.push('Description  required.');
+        this.errors.push("Description  required.");
       }
-      if (!this.expireDate.choseDay()) {
-        this.errors.push('Calendar  required.');
+      if (!this.expireDate) {
+        this.errors.push("Calendar  required.");
       }
-      }
+
       if (!this.errors.length) {
         return true;
       }
